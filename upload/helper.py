@@ -9,8 +9,8 @@ def show_product_informations(df):
         "width",
         "height",
         "weight",
-        "selling price",
-        "buying price",
+        "selling price incl. vat",
+        "buying price excl. vat",
         "vat",
         "perishable",
         "fragile",
@@ -22,7 +22,7 @@ def show_product_informations(df):
     cDf = copy.deepcopy(df)
     cDf = cDf[columns]
     st.subheader("Product Overview")
-    st.dataframe(cDf)
+    st.dataframe(cDf, use_container_width=True)
 
 
 
@@ -37,18 +37,14 @@ def show_logistics(df):
         "logistic message logistics",
         "format",
 
-        "fee storage per month",
-        "fee fragile",
-        "fee perishalbe",
-        "fee labeling",
         
-        "cost per article",
-        "cost per delivery",
-        "cost fragile",
-        "cost perishable",
-        "cost labeling",
-        "cost storage",
-        "total logistics costs",
+        "fee per article",
+        "fee per delivery",
+        "fee fragile",
+        "fee perishable",
+        "fee labeling",
+        "fee storage",
+        "total logistics fee",
     ]
     cDf = copy.deepcopy(df)
     cDf = cDf[columns]
@@ -64,12 +60,11 @@ def show_commissions(df):
         "commission message attr",
         "commission validity commission",
         "commission message commission",
-        "fee fixed excl. vat.",
-        "fee percentage excl. vat",
-        "cost fixed fee incl. vat",
-        "cost percentage fee incl. vat",
-        "cost surcharge",
-        "total commissions costs",
+
+        "fee fixed",
+        "fee percentage",
+        "fee surcharge",
+        "total commissions fee",
     ]
     cDf = copy.deepcopy(df)
     cDf = cDf[columns]
@@ -80,12 +75,12 @@ def show_commissions(df):
 def show_costs_overview(df):
     columns = [
         "product name",
-        "total logistics costs",
-        "total commissions costs",
-        "buying price",
-        "selling price",
-        "brutto margin",
-        "% margin",
+        "total logistics fee",
+        "total commissions fee",
+        "buying price excl. vat",
+        "selling price incl. vat",
+        "margin excl. VAT",
+        "% margin excl. VAT",
     ]
     cDf = copy.deepcopy(df)
     cDf = cDf[columns]

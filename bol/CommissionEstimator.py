@@ -141,39 +141,35 @@ class CommissionEstimator:
             "price": self.product.price,
             "vat": self.product.vat,
             
-            "fee fixed excl. vat.": self.fixed_fee,
-            "fee percentage excl. vat": self.percentage_fee,
+            "fee fixed": None,
+            "fee percentage": None,
+            "fee surcharge": None, 
             
-            "cost fixed fee incl. vat": None, 
-            "cost percentage fee incl. vat": None, 
-            "cost surcharge": None, 
-            
-            "total commissions costs": None 
+            "total commissions fee": None,
             
         }
         
-    def _calculate_total_costs(self, cCosts:dict):
+    def _calculate_total_fees(self, cCosts:dict):
         if self.attr_validity and self.commission_validity:
-            cCosts["total commissions costs"] = 0
-            cCosts["total commissions costs"] += cCosts["cost fixed fee incl. vat"]
-            cCosts["total commissions costs"] += cCosts["cost percentage fee incl. vat"]
-            cCosts["total commissions costs"] += cCosts["cost surcharge"]
+            cCosts["total commissions fee"] = 0
+            cCosts["total commissions fee"] += cCosts["fee fixed"]
+            cCosts["total commissions fee"] += cCosts["fee percentage"]
+            cCosts["total commissions fee"] += cCosts["fee surcharge"]
         else:
-            cCosts["total commissions costs"] = None
+            cCosts["total commissions fee"] = None
             
         return cCosts
     
         
-    def get_commission_costs(self):
+    def get_commission_fees(self):
         cCosts = self._get_summary_dictionary()
         
         if not self.attr_validity or not self.commission_validity:
             return cCosts
         else:
-            cCosts["cost fixed fee incl. vat"] = self.fixed_fee * (1 + (self.product.vat / 100))
-            cCosts["cost percentage fee incl. vat"] = self.percentage_fee * self.product.price * (1 + (self.product.vat / 100))
-            cCosts["cost surcharge"] = self._get_surcharge() * (1 + (self.product.vat / 100))
+            cCosts["fee fixed"] = self.fixed_fee
+            cCosts["fee percentage"] = self.percentage_fee * self.product.price 
+            cCosts["fee surcharge"] = self._get_surcharge() 
             
-            cCosts = self._calculate_total_costs(cCosts)
-            
+            cCosts = self._calculate_total_fees(cCosts)
             return cCosts

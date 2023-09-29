@@ -43,6 +43,13 @@ class LogisticsAttrValidator():
             cValid = False
             error_messages.append("labeling")
             
+        # if (product.vat is None 
+        #     or product.vat < 0
+        #     or product.vat > 100
+        #     ):
+        #     cValid = False
+        #     error_messages.append("vat")
+            
         if storage.winter is None:
             cValid = False
             error_messages.append("winterStorage")

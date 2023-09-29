@@ -16,9 +16,9 @@ class DataHandler():
     
     """Schnittstelle zwischen Streamlit und Busisness-Logik"""
     def __init__(self):
-        self._reset_class_variables()
+        self._set_class_variables()
 
-    def _reset_class_variables(self):
+    def _set_class_variables(self):
         
         if not "uploaded_df" in st.session_state:
             st.session_state.uploaded_df = None
@@ -31,6 +31,19 @@ class DataHandler():
             
         if not "excluded_rows" in st.session_state:
             st.session_state.excluded_rows = []
+            
+    def _unset_class_variables(self):
+        if "uploaded_df" in st.session_state:
+            del st.session_state.uploaded_df
+            
+        if "processed_df" in st.session_state:
+            del st.session_state.processed_df
+            
+        if "updated_rows" in st.session_state:
+            del st.session_state.updated_rows
+            
+        if "excluded_rows" in st.session_state:
+            del st.session_state.excluded_rows
             
     def process_uploaded_file(self, uploaded_file):
         try:
@@ -47,7 +60,7 @@ class DataHandler():
                 if df.equals(st.session_state.uploaded_df):
                     pass
                 else:
-                    self._reset_class_variables()
+                    self._unset_class_variables()
                     self._validate_uploaded_file(df)            
             
     def _validate_uploaded_file(self, df:pd.DataFrame):
@@ -90,32 +103,29 @@ class DataHandler():
         st.session_state.processed_df["logistic message logistics"] = None
         st.session_state.processed_df["format"] = None
 
-        st.session_state.processed_df["fee storage per month"] = None
+
+        st.session_state.processed_df["fee per article"] = None
+        st.session_state.processed_df["fee per delivery"] = None
         st.session_state.processed_df["fee fragile"] = None
-        st.session_state.processed_df["fee perishalbe"] = None
+        st.session_state.processed_df["fee perishable"] = None
         st.session_state.processed_df["fee labeling"] = None
-        st.session_state.processed_df["cost per article"] = None
-        st.session_state.processed_df["cost per delivery"] = None
-        st.session_state.processed_df["cost fragile"] = None
-        st.session_state.processed_df["cost perishable"] = None
-        st.session_state.processed_df["cost labeling"] = None
-        st.session_state.processed_df["cost storage"] = None
-        st.session_state.processed_df["total logistics costs"] = None        
+        st.session_state.processed_df["fee storage"] = None
+        st.session_state.processed_df["total logistics fee"] = None        
         
         st.session_state.processed_df["commission validity attr"] = None
         st.session_state.processed_df["commission message attr"] = None
         st.session_state.processed_df["commission validity commission"] = None
         st.session_state.processed_df["commission message commission"] = None
 
-        st.session_state.processed_df["fee fixed excl. vat."] = None
-        st.session_state.processed_df["fee percentage excl. vat"] = None
-        st.session_state.processed_df["cost fixed fee incl. vat"] = None
-        st.session_state.processed_df["cost percentage fee incl. vat"] = None
-        st.session_state.processed_df["cost surcharge"] = None
-        st.session_state.processed_df["total commissions costs"] = None
+        st.session_state.processed_df["fee fixed"] = None
+        st.session_state.processed_df["fee percentage"] = None
+        st.session_state.processed_df["fee surcharge"] = None
+        st.session_state.processed_df["total commissions fee"] = None
         
-        st.session_state.processed_df["brutto margin"] = None 
-        st.session_state.processed_df["% margin"] = None 
+        st.session_state.processed_df["selling price excl. vat"] = None
+        
+        st.session_state.processed_df["margin excl. VAT"] = None 
+        st.session_state.processed_df["% margin excl. VAT"] = None 
 
     def _calc_per_product(self, id, row):
         
@@ -127,7 +137,7 @@ class DataHandler():
             perishable=row["perishable"],
             fragile=row["fragile"],
             labeling=row["labeling"],
-            price=row["selling price"],
+            price=row["selling price incl. vat"],
             vat=row["vat"],
             productName=row["product name"],
             productGroup=row["product group"],
@@ -143,8 +153,8 @@ class DataHandler():
         logistic = LogisticsEstimator(product, storage, DestinationCountry.from_string(row["delivery destination"]))
         commission = CommissionEstimator(product)
 
-        cost_logistics:dict = logistic.get_logistic_costs()
-        cost_commissions:dict = commission.get_commission_costs()
+        cost_logistics:dict = logistic.get_logistic_fees()
+        cost_commissions:dict = commission.get_commission_fees()
 
         for column, value in cost_logistics.items():
             st.session_state.processed_df.at[id, column] = value
@@ -153,14 +163,17 @@ class DataHandler():
             st.session_state.processed_df.at[id, column] = value
             
         # Calculate Margins
-        brutto_margin = row["selling price"] - row["buying price"]
-        brutto_margin -= cost_logistics["total logistics costs"] if cost_logistics["total logistics costs"] is not None else 0
-        brutto_margin -= cost_commissions["total commissions costs"] if cost_commissions["total commissions costs"] is not None else 0
         
-        yield_margin = brutto_margin / row["selling price"] 
+        st.session_state.processed_df.at[id, "selling price excl. vat"] = row["selling price incl. vat"] / (1 + row["vat"] / 100)
         
-        st.session_state.processed_df.at[id, "brutto margin"] = brutto_margin
-        st.session_state.processed_df.at[id, "% margin"] = yield_margin
+        
+        
+        marge_excl_vat = st.session_state.processed_df.at[id, "selling price excl. vat"] - st.session_state.processed_df.at[id, "buying price excl. vat"]
+        marge_excl_vat -= cost_logistics["total logistics fee"] if cost_logistics["total logistics fee"] is not None else 0
+        marge_excl_vat -= cost_commissions["total commissions fee"] if cost_commissions["total commissions fee"] is not None else 0
+        
+        st.session_state.processed_df.at[id, "margin excl. VAT"] = marge_excl_vat
+        st.session_state.processed_df.at[id, "% margin excl. VAT"] = marge_excl_vat /  st.session_state.processed_df.at[id,"selling price excl. vat"] * 100
                 
                 
                 
@@ -226,7 +239,7 @@ class DataHandler():
 
 
     def render_results(self):
-        if st.session_state.processed_df is not None:
+        if "processed_df" in st.session_state and st.session_state.processed_df is not None:
             add_vertical_space(2)
             show_product_informations(st.session_state.processed_df)
             add_vertical_space(2)
@@ -256,8 +269,8 @@ class DataHandler():
         column_order = [
             "product name",
             "product group",
-            "buying price",
-            "selling price",
+            "buying price excl. vat",
+            "selling price incl. vat",
             "vat",
             "length",
             "width",
@@ -279,17 +292,14 @@ class DataHandler():
                 "logistic validity logistics",
                 "logistic message logistics",
                 "format",
-                "fee storage per month",
+
+                "fee per article",
+                "fee per delivery",
                 "fee fragile",
-                "fee perishalbe",
+                "fee perishable",
                 "fee labeling",
-                "cost per article",
-                "cost per delivery",
-                "cost fragile",
-                "cost perishable",
-                "cost labeling",
-                "cost storage",
-                "total logistics costs",
+                "fee storage",
+                "total logistics fee",
             ]
         )
         
@@ -299,20 +309,18 @@ class DataHandler():
                 "commission message attr",
                 "commission validity commission",
                 "commission message commission",
-                "fee fixed excl. vat.",
-                "fee percentage excl. vat",
-                "cost fixed fee incl. vat",
-                "cost percentage fee incl. vat",
-                "cost surcharge",
-                "total commissions costs",
+                "fee fixed",
+                "fee percentage",
+                "fee surcharge",
+                "total commissions fee",
             ]
         )
         
         
         column_order.extend(
             [
-                "brutto margin",
-                "% margin",
+                "margin excl. VAT",
+                "% margin excl. VAT",
             ]
         )
         

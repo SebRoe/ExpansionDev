@@ -6,8 +6,8 @@ import io
 
 def create_excel_data():
     df = pd.DataFrame(columns=[
-        "product name", "length", "width", "height", "weight", "selling price",
-        "buying price", "vat", "perishable", "fragile",
+        "product name", "length", "width", "height", "weight", "selling price incl. vat",
+        "buying price excl. vat", "vat", "perishable", "fragile",
         "labeling", "storage winter", "storage duration",
         "delivery destination"
     ])
@@ -31,8 +31,8 @@ def main():
         ("width", "float", "Yes", "None", "Enter the width in cm."),
         ("height", "float", "Yes", "None", "Enter the height in cm."),
         ("weight", "float", "Yes", "None", "Enter the weight in kilograms."),
-        ("selling price", "float", "Yes", "None", "Enter the selling price."),
-        ("buying price", "float", "Yes", "None", "Enter the buying price."),
+        ("selling price incl. vat", "float", "Yes", "None", "Enter the selling price."),
+        ("buying price excl. vat", "float", "Yes", "None", "Enter the buying price excl. vat."),
         ("vat", "float", "No", "21.0", "Enter the VAT percentage (0 to 100)."),
         ("perishable", "bool", "No", "False", "Set to 'True' if the item is perishable, otherwise 'False'."),
         ("fragile", "bool", "No", "False", "Set to 'True' if the item is fragile, otherwise 'False'."),
@@ -43,8 +43,8 @@ def main():
     ]
 
     df = pd.DataFrame(columns=[ "product name", 
-        "length", "width", "height", "weight", "selling price",
-        "buying price", "vat", "perishable", "fragile",
+        "length", "width", "height", "weight", "selling price incl. vat",
+        "buying price excl. vat", "vat", "perishable", "fragile",
         "labeling", "storage winter", "storage duration",
         "delivery destination"
     ])
@@ -70,7 +70,7 @@ def main():
     st.write("You will be able to tweak that estimations around.")
 
     st.write("### Product Groups:")
-    with st.expander("Click here to see the product groups"):
+    with st.expander("Click here to see all product groups"):
         st.table(PRODUCT_GROUPS)
     
 

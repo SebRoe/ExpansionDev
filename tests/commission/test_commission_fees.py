@@ -1,3 +1,4 @@
+
 import pytest
 from bol.CommissionEstimator import CommissionEstimator
 from bol.Product import Product
@@ -36,12 +37,9 @@ products = [
                 "commission validity commission": True, 
                 
                 "vat" : 21,
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.06,
-                
-                "cost fixed fee incl. vat": 0.85 * 1.21, 
-                "cost percentage fee incl. vat": 100 * 0.06 * 1.21, 
-                "cost surcharge": 0, 
+                "fee fixed": 0.85,
+                "fee percentage": 0.06 * 100,
+                "fee surcharge": 0, 
                 
             }
         ),
@@ -52,12 +50,9 @@ products = [
                 "commission validity commission": True, 
                 
                 "vat" : 21,
-                "fee fixed excl. vat.": 1.85,
-                "fee percentage excl. vat": 0.09,
-                
-                "cost fixed fee incl. vat": 1.85 * 1.21, 
-                "cost percentage fee incl. vat": 100 * 0.09 * 1.21, 
-                "cost surcharge": 1 * 1.21, 
+                "fee fixed": 1.85,
+                "fee percentage": 0.09 * 100,
+                "fee surcharge": 1, 
                 
             }
         ),
@@ -65,24 +60,24 @@ products = [
             Product(vat=21, price=100, productGroup="Household Appliances - Household Appliances"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.08,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.08 * 100,                
             }
         ),
         (
             Product(vat=21, price=99.9, productGroup="Household Appliances - Household Appliances"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.08,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.08 * 99.9,                
             }
         ),
         (
             Product(vat=21, price=100.1, productGroup="Household Appliances - Household Appliances"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.06,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.06 * 100.1,                
             }
         ),
         
@@ -90,8 +85,8 @@ products = [
             Product(vat=21, price=10, productGroup="Fashion and Sports - Baby and Children's Clothing"),
             {
                 
-                "fee fixed excl. vat.": 0.2,
-                "fee percentage excl. vat": 0.04,                
+                "fee fixed": 0.2,
+                "fee percentage": 0.04 * 10,                
             }
         ),
         
@@ -99,8 +94,8 @@ products = [
             Product(vat=21, price=15, productGroup="Fashion and Sports - Baby and Children's Clothing"),
             {
                 
-                "fee fixed excl. vat.": 0.4,
-                "fee percentage excl. vat": 0.04,                
+                "fee fixed": 0.4,
+                "fee percentage": 0.04 * 15,                
             }
         ),
         
@@ -108,8 +103,8 @@ products = [
             Product(vat=21, price=25, productGroup="Fashion and Sports - Baby and Children's Clothing"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.1,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.1 * 25,                
             }
         ),
         
@@ -117,8 +112,8 @@ products = [
             Product(vat=21, price=50, productGroup="Fashion and Sports - Baby and Children's Clothing"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.1,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.1 *50,                
             }
         ),
         
@@ -126,8 +121,8 @@ products = [
             Product(vat=21, price=51, productGroup="Fashion and Sports - Baby and Children's Clothing"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.13,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.13*51,                
             }
         ),
         
@@ -135,8 +130,8 @@ products = [
             Product(vat=21, price=51, productGroup="Beauty and Care - Daily Care (except Contact Lenses and Lens Solution)"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.108,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.108*51,                
             }
         ),
         
@@ -144,8 +139,8 @@ products = [
             Product(vat=21, price=20, productGroup="Beauty and Care - Daily Care (except Contact Lenses and Lens Solution)"),
             {
                 
-                "fee fixed excl. vat.": 0.4,
-                "fee percentage excl. vat": 0,                
+                "fee fixed": 0.4,
+                "fee percentage": 0*20,                
             }
         ),
         
@@ -153,16 +148,16 @@ products = [
             Product(vat=21, price=20, productGroup="Beauty and Care - Daily Care"),
             {
                 
-                "fee fixed excl. vat.": 0.4,
-                "fee percentage excl. vat": 0.05,                
+                "fee fixed": 0.4,
+                "fee percentage": 0.05*20,                
             }
         ),        
         (
             Product(vat=21, price=21, productGroup="Beauty and Care - Daily Care"),
             {
                 
-                "fee fixed excl. vat.": 0.85,
-                "fee percentage excl. vat": 0.00,                
+                "fee fixed": 0.85,
+                "fee percentage": 0.00*21,                
             }
         ),        
 ]
@@ -172,6 +167,6 @@ products = [
 @pytest.mark.parametrize("product, expected_dict", products)
 def test_commission_estimator(product, expected_dict):
     ce = CommissionEstimator(product)
-    cCosts = ce.get_commission_costs()
+    cCosts = ce.get_commission_fees()
     for key, value in expected_dict.items():
         assert cCosts[key] == value

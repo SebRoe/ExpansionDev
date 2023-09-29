@@ -87,7 +87,7 @@ class LogisticsEstimator():
         
         
 
-    def _calculate_storage_costs(self):
+    def _calculate_storage_fees(self):
         if self.attr_validity and self.logistics_validity:
             if self.storage.winter:
                 return self.STORAGE_COSTS_WINTER_HOLIDAYS[self.format] * self.storage.duration
@@ -117,67 +117,62 @@ class LogisticsEstimator():
             "storage winter": self.storage.winter, 
             "storage duration": self.storage.duration,
             
-            "fee storage per month": self._get_storage_fee(), 
-            "fee fragile": self.ADDITIONAL_COSTS["fragile"],
-            "fee perishalbe": self.ADDITIONAL_COSTS["perishable"], 
-            "fee labeling": self.ADDITIONAL_COSTS["label"], 
+            "fee per article": None,
+            "fee per delivery": None, 
+            "fee fragile": None, 
+            "fee perishable": None, 
+            "fee labeling": None, 
+            "fee storage": None, 
             
-            "cost per article": None,
-            "cost per delivery": None, 
-            "cost fragile": None, 
-            "cost perishable": None, 
-            "cost labeling": None, 
-            "cost storage": None, 
-            
-            "total logistics costs": None, 
+            "total logistics fee": None, 
         }
         
         
-    def _calculate_total_costs(self, cCosts:dict):
+    def _calculate_total_fees(self, cCosts:dict):
         if self.attr_validity and self.logistics_validity:
-            cCosts["total logistics costs"] = 0
-            cCosts["total logistics costs"] += cCosts["cost per article"]
-            cCosts["total logistics costs"] += cCosts["cost per delivery"]
-            cCosts["total logistics costs"] += cCosts["cost fragile"]
-            cCosts["total logistics costs"] += cCosts["cost perishable"]
-            cCosts["total logistics costs"] += cCosts["cost labeling"]
-            cCosts["total logistics costs"] += cCosts["cost storage"]
+            cCosts["total logistics fee"] = 0
+            cCosts["total logistics fee"] += cCosts["fee per article"]
+            cCosts["total logistics fee"] += cCosts["fee per delivery"]
+            cCosts["total logistics fee"] += cCosts["fee fragile"]
+            cCosts["total logistics fee"] += cCosts["fee perishable"]
+            cCosts["total logistics fee"] += cCosts["fee labeling"]
+            cCosts["total logistics fee"] += cCosts["fee storage"]
 
         else:
-            cCosts["total logistics costs"] = None
+            cCosts["total logistics fee"] = None
             
         return cCosts
     
     
         
-    def get_logistic_costs(self):
+    def get_logistic_fees(self):
         
         cCosts = self._get_summary_dictionary()
         
         if not self.attr_validity or not self.logistics_validity:
             return cCosts
         else:
-            cCosts["cost per article"] = self.COSTS_PER_FORMAT[self.format]["cost_per_article"]
-            cCosts["cost per delivery"] = self.COSTS_PER_FORMAT[self.format]["cost_per_delivery"]
+            cCosts["fee per article"] = self.COSTS_PER_FORMAT[self.format]["cost_per_article"]
+            cCosts["fee per delivery"] = self.COSTS_PER_FORMAT[self.format]["cost_per_delivery"]
             
             if self.product.fragile:
-                cCosts["cost fragile"] = self.ADDITIONAL_COSTS["fragile"]
+                cCosts["fee fragile"] = self.ADDITIONAL_COSTS["fragile"]
             else:
-                cCosts["cost fragile"] = 0
+                cCosts["fee fragile"] = 0
                 
             if self.product.perishable:
-                cCosts["cost perishable"] = self.ADDITIONAL_COSTS["perishable"]
+                cCosts["fee perishable"] = self.ADDITIONAL_COSTS["perishable"]
             else:
-                cCosts["cost perishable"] = 0
+                cCosts["fee perishable"] = 0
                 
             if self.product.labeling:
-                cCosts["cost labeling"] = self.ADDITIONAL_COSTS["label"]
+                cCosts["fee labeling"] = self.ADDITIONAL_COSTS["label"]
             else:
-                cCosts["cost labeling"] = 0
+                cCosts["fee labeling"] = 0
                 
-            cCosts["cost storage"] = self._calculate_storage_costs()
+            cCosts["fee storage"] = self._calculate_storage_fees()
             
-            cCosts = self._calculate_total_costs(cCosts)
+            cCosts = self._calculate_total_fees(cCosts)
             
             return cCosts
             
