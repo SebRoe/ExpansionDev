@@ -133,7 +133,7 @@ class DataValidator:
     def _validate_special_columns(self, df: pd.DataFrame, log: dict):
         
         if "product group" in df.columns:
-            df["product group"] = df["product group"].str.strip()
+            df["product group"] = df["product group"].astype(str).str.strip()
             # iterate over the whole column: id, value
             for id, value in df["product group"].items():
                 if value in PRODUCT_GROUPS:
@@ -148,8 +148,8 @@ class DataValidator:
             classifier = load_model()
 
             # Predict the whole column
+            df["product name"] = df["product name"].astype(str).str.strip()
             names = df["product name"].values.tolist()
-            names = [str(i) for i in names]
             groups = []
             for name in names:
                 label, proba, top4_labels, top4_probas = classifier.predict(name)
