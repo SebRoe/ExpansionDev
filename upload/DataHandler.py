@@ -124,8 +124,11 @@ class DataHandler():
         
         st.session_state.processed_df["selling price excl. vat"] = None
         
+        st.session_state.processed_df["estimated marketing fee"] = 0.1
+        st.session_state.processed_df["total marketing fee"] = None
         st.session_state.processed_df["margin excl. VAT"] = None 
         st.session_state.processed_df["% margin excl. VAT"] = None 
+
 
     def _calc_per_product(self, id, row):
         
@@ -166,12 +169,16 @@ class DataHandler():
         
         st.session_state.processed_df.at[id, "selling price excl. vat"] = row["selling price incl. vat"] / (1 + row["vat"] / 100)
         
-        
-        
+        st.session_state.processed_df.at[id, "total marketing fee"] = st.session_state.processed_df.at[id, "selling price excl. vat"] * st.session_state.processed_df.at[id, "estimated marketing fee"]
+
         marge_excl_vat = st.session_state.processed_df.at[id, "selling price excl. vat"] - st.session_state.processed_df.at[id, "buying price excl. vat"]
         marge_excl_vat -= cost_logistics["total logistics fee"] if cost_logistics["total logistics fee"] is not None else 0
         marge_excl_vat -= cost_commissions["total commissions fee"] if cost_commissions["total commissions fee"] is not None else 0
-        
+        marge_excl_vat -= st.session_state.processed_df.at[id, "total marketing fee"] if st.session_state.processed_df.at[id, "total marketing fee"] is not None else 0
+
+        # Marketing Assumption / Fee 10% Netto Price
+
+
         st.session_state.processed_df.at[id, "margin excl. VAT"] = marge_excl_vat
         st.session_state.processed_df.at[id, "% margin excl. VAT"] = marge_excl_vat /  st.session_state.processed_df.at[id,"selling price excl. vat"] * 100
                 
@@ -182,7 +189,7 @@ class DataHandler():
     def _calculate_all_costs(self):
         
         self._add_meta_columns()
-        
+
         # Iterate over all rows and calculate the costs. 
         for id, row in st.session_state.processed_df.iterrows():
             self._calc_per_product(id, row)
@@ -266,6 +273,7 @@ class DataHandler():
     def get_processed_df_as_excel(self):
         
         output = BytesIO()
+
         column_order = [
             "product name",
             "product group",
@@ -281,9 +289,9 @@ class DataHandler():
             "labeling",
             "storage winter",
             "storage duration",
-            "delivery destination",                
-        ]
-        
+            "delivery destination",
+            "estimated marketing fee",  
+        ]        
         
         column_order.extend(
             [
@@ -315,6 +323,10 @@ class DataHandler():
                 "total commissions fee",
             ]
         )
+
+        column_order.extend([
+            "total marketing fee",
+        ])
         
         
         column_order.extend(
@@ -324,6 +336,16 @@ class DataHandler():
             ]
         )
         
+        all_columns = st.session_state.processed_df.columns.tolist()
+
+
+        discrepance = list(set(all_columns) - set(column_order))
+
+        # Add all columns that are not in the column_order after index 3 in list 
+        
+        for col in discrepance:
+            column_order.insert(3, col)
+
         cDf = st.session_state.processed_df[column_order]
         
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:

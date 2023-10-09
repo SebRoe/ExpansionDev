@@ -138,7 +138,6 @@ class CommissionEstimator:
             "commission message commission": self.commission_message,
             
             "product group": self.product.productGroup,
-            "price": self.product.price,
             "vat": self.product.vat,
             
             "fee fixed": None,

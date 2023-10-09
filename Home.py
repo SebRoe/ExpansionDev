@@ -38,7 +38,7 @@ def main():
         ("fragile", "bool", "No", "False", "Set to 'True' if the item is fragile, otherwise 'False'."),
         ("labeling", "bool", "No", "False", "Set to 'True' if labeling is required, otherwise 'False'."),
         ("storage winter", "bool", "No", "False", "Set to 'True' if winter storage is needed, otherwise 'False'."),
-        ("storage duration", "int", "No", "1", "Enter the storage duration in days."),
+        ("storage duration", "int", "No", "1", "Enter the storage duration in months."),
         ("delivery destination", "DestinationCountry", "No", "NL", "Enter the delivery destination."),
     ]
 

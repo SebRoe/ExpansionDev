@@ -149,6 +149,7 @@ class DataValidator:
 
             # Predict the whole column
             names = df["product name"].values.tolist()
+            names = [str(i) for i in names]
             groups = []
             for name in names:
                 label, proba, top4_labels, top4_probas = classifier.predict(name)
